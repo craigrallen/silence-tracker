@@ -1,28 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { saveCheckIn, getDay, today } from '../store';
 
-export function CheckIn() {
-  const [mood, setMood] = useState(0);
-  const [sleep, setSleep] = useState(0);
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    const day = getDay(today());
-    if (day.checkIn) {
-      setMood(day.checkIn.mood);
-      setSleep(day.checkIn.sleep);
-      setSaved(true);
-    }
-  }, []);
-
-  const submit = () => {
-    if (mood && sleep) {
-      saveCheckIn({ date: today(), mood, sleep });
-      setSaved(true);
-    }
-  };
-
-  const Dots = ({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) => (
+function Dots({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
+  return (
     <div className="space-y-2">
       <span className="text-[10px] tracking-[0.2em] text-neutral-400 uppercase">{label}</span>
       <div className="flex justify-center gap-3">
@@ -42,6 +22,19 @@ export function CheckIn() {
       </div>
     </div>
   );
+}
+
+export function CheckIn() {
+  const [mood, setMood] = useState(() => getDay(today()).checkIn?.mood ?? 0);
+  const [sleep, setSleep] = useState(() => getDay(today()).checkIn?.sleep ?? 0);
+  const [saved, setSaved] = useState(() => !!getDay(today()).checkIn);
+
+  const submit = () => {
+    if (mood && sleep) {
+      saveCheckIn({ date: today(), mood, sleep });
+      setSaved(true);
+    }
+  };
 
   return (
     <section className="text-center space-y-6 py-4">

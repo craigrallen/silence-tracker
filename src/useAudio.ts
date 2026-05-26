@@ -12,6 +12,7 @@ export function useAudio() {
   const rafRef = useRef<number>(0);
   const segmentStartRef = useRef<number>(0);
   const dbSamplesRef = useRef<number[]>([]);
+  const rafCallbackRef = useRef<() => void>(() => {});
 
   const SEGMENT_MS = 5000; // save an entry every 5 seconds
 
@@ -46,8 +47,9 @@ export function useAudio() {
       segmentStartRef.current = now;
     }
 
-    rafRef.current = requestAnimationFrame(processAudio);
+    rafRef.current = requestAnimationFrame(rafCallbackRef.current);
   }, []);
+  useEffect(() => { rafCallbackRef.current = processAudio; }, [processAudio]);
 
   const start = useCallback(async () => {
     try {
